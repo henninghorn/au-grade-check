@@ -1,4 +1,6 @@
 require('dotenv').config()
+
+const notifier = require('node-notifier')
 const puppeteer = require('puppeteer')
 
 async function getGrades({ username, password }) {
@@ -56,6 +58,15 @@ async function monitorGrades({ username, password }) {
 
     console.log('All grades', { grades })
     console.log('Latest grade', grades[0])
+
+    if (grades[0]['gradedAt'] != process.env.LATEST_GRADE_AT) {
+        notifier.notify({
+            title: 'Ny karakter!',
+            message: `Fag: ${grades[0]['course']}, karakter: ${grades[0]['grade']}`,
+            reply: true,
+            timeout: 999
+        })
+    }
 
     // Check every 15 minutes
     setTimeout(() => { monitorGrades({ username, password }) }, 1000 * 60 * 15)
